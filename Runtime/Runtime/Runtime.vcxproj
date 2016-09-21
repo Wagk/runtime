@@ -122,6 +122,7 @@
     <ClCompile Include="concurrent\job.cpp" />
     <ClCompile Include="concurrent\kernel.cpp" />
     <ClCompile Include="concurrent\thread.cpp" />
+    <ClCompile Include="concurrent\worker.cpp" />
     <ClCompile Include="main.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -129,6 +130,7 @@
     <ClInclude Include="concurrent\job.h" />
     <ClInclude Include="concurrent\kernel.h" />
     <ClInclude Include="concurrent\thread.h" />
+    <ClInclude Include="concurrent\worker.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

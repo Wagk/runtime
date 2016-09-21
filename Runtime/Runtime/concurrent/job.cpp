@@ -1,11 +1,14 @@
 #include "job.h"
 
-namespace concurrent
+namespace sandcastle
 {
-
-	void job::exec()
+	namespace concurrent
 	{
-		desc();
-	}
 
-} //namespace concurrent
+		void job::run()
+		{
+			func();
+		}
+
+	} //namespace concurrent
+}

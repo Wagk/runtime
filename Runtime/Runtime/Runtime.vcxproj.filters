@@ -30,6 +30,9 @@
     <ClCompile Include="concurrent\kernel.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="concurrent\worker.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="concurrent\deque.h">
@@ -42,6 +45,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="concurrent\kernel.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="concurrent\worker.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

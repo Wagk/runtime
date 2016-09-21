@@ -1,6 +1,12 @@
 #include "thread.h"
 
-namespace concurrent
+namespace sandcastle
 {
-	thread_local thread_globals global;
-} //namespace concurrent
+	namespace concurrent
+	{
+		namespace this_thread
+		{
+			thread_local worker this_worker;
+		}
+	} //namespace concurrent
+}

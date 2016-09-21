@@ -1,40 +1,63 @@
 #include "deque.h"
 
-namespace concurrent
+namespace sandcastle
 {
-	void deque::push(job* task)
+	namespace concurrent
 	{
-		if (task == nullptr) return;
 
-		std::lock_guard<std::mutex> lock(_lock);
+		deque::deque()
+		{
 
-		_queue.push_front(task);
-	}
+		}
 
-	job * deque::pop()
-	{
-		std::lock_guard<std::mutex> lock(_lock);
+		deque::deque(const deque & rhs)
+			: _queue(rhs._queue)
+		{
 
-		if (_queue.empty() == true)
-			return nullptr;
+		}
 
-		job* task = _queue.front();
-		_queue.pop_front();
+		bool deque::empty() const
+		{
+			std::lock_guard<std::mutex> lock(_lock);
 
-		return task;
-	}
+			return _queue.empty();
+		}
 
-	job * deque::steal()
-	{
-		std::lock_guard<std::mutex> lock(_lock);
+		void deque::push(job* task)
+		{
+			if (task == nullptr)
+				return;
 
-		if (_queue.empty() == true)
-			return nullptr;
+			std::lock_guard<std::mutex> lock(_lock);
 
-		job* task = _queue.back();
-		_queue.pop_back();
+			_queue.push_front(task);
+		}
 
-		return task;
-	}
+		job * deque::pop()
+		{
+			std::lock_guard<std::mutex> lock(_lock);
 
-} //namespace concurrent
+			if (_queue.empty() == true)
+				return nullptr;
+
+			job* task = _queue.front();
+			_queue.pop_front();
+
+			return task;
+		}
+
+		job * deque::steal()
+		{
+			std::lock_guard<std::mutex> lock(_lock);
+
+			if (_queue.empty() == true)
+				return nullptr;
+
+			job* task = _queue.back();
+			_queue.pop_back();
+
+			return task;
+		}
+
+	} //namespace concurrent
+}

@@ -1,67 +1,74 @@
-#include "kernel.h"
 #include <thread>
 #include <utility>
 
-namespace concurrent
+#include "kernel.h"
+
+namespace sandcastle
 {
-
-	void kernel::init()
+	namespace concurrent
 	{
-		_numthreads = std::thread::hardware_concurrency() - 1;
 
-		_threadpool.resize(_numthreads);
-
-		//main thread
-		_maininfo._kill = false;
-		_maininfo._graphics = true;
-		
-		for (auto& thread : _threadpool)
+		void kernel::init()
 		{
-			deque* queueptr = &thread.first._queue;
-			_maininfo._steal_queues.push_back(queueptr);
-		}
+			_numthreads = std::thread::hardware_concurrency();
 
-		//spawned threads
-		for (auto& thread : _threadpool)
-		{
-			workerinfo& info = thread.first;
+			_threadpool.resize(_numthreads - 1);
+			_queuepool.resize(_numthreads);
 
-			info._steal_queues.reserve(_numthreads + 1);
-			info._steal_queues.push_back(&_maininfo._queue);
-			for (auto& elem : _threadpool)
+			//_queuepool[0] is ALWAYS graphics thread
+			_main_data._stop = &_stop;
+			_main_data._work = &_queuepool[0];
+
+			for (auto& elem : _queuepool)
 			{
-				if(&elem.first._queue != &thread.first._queue)
-					info._steal_queues.push_back(&elem.first._queue);
+				if (&elem == _main_data._work)
+					continue;
+
+				_main_data._steal.push_back(&elem);
 			}
 
-			info._kill = false;
-			info._graphics = false;
+			//other workers
+			for (size_t i = 1; i < _queuepool.size(); ++i)
+			{
+				worker_data data;
+
+				data._stop = &_stop;
+				data._work = &_queuepool[i];
+
+				for (size_t j = 1; j < _queuepool.size(); ++j)
+				{
+					if (data._work == &_queuepool[j])
+						continue;
+
+					data._steal.push_back(&_queuepool[j]);
+				}
+
+				_threadpool[i - 1] = std::move(std::thread(&kernel::launch_worker, data));
+			}
+
 		}
 
-		for (auto& thread : _threadpool)
+		void kernel::shutdown()
 		{
-			thread.second = std::move(std::thread(&thread.first));
+			_stop.store(true);
+
+			for (auto& thread : _threadpool)
+			{
+				thread.join();
+			}
 		}
 
-	}
-
-	void kernel::shutdown()
-	{
-		for (auto& thread : _threadpool)
+		void kernel::launch_main_worker()
 		{
-			thread.first._kill = true;
+			launch_worker(_main_data);
 		}
 
-		for (auto& thread : _threadpool)
+		void kernel::launch_worker(worker_data data)
 		{
-			thread.second.join();
+			this_thread::this_worker.init(data);
+
+			this_thread::this_worker.run();
 		}
-	}
 
-	void kernel::worker(workerinfo* info)
-	{
-
-		
-	}
-
-} //namespace concurrent
+	} //namespace concurrent
+}

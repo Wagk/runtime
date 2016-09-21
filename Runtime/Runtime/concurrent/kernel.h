@@ -8,37 +8,48 @@
 
 #include <thread>
 #include <vector>
+#include <atomic>
+
 #include "deque.h"
+#include "thread.h"
+#include "worker.h"
 
-namespace concurrent
+namespace sandcastle
 {
-
-	class kernel
+	namespace concurrent
 	{
-	public:
 
-		void init();
-		void shutdown();
-
-	private:
-		
-		struct workerinfo
+		class kernel
 		{
-			deque _queue; //thread local queue
-			std::vector<deque*> _steal_queues;//pointers to other queues
-			bool _kill;		//kill flag
-			bool _graphics;	//affinities
+		public:
+
+			static kernel& get()
+			{
+				static kernel singleton;
+				return singleton;
+			}
+
+			void init();
+			void shutdown();
+
+			void launch_main_worker();
+
+		private:
+
+			static void launch_worker(worker_data data);
+
+			unsigned int _numthreads; //including main thread
+
+			std::atomic<bool> _stop;
+
+			worker_data _main_data;
+
+			std::vector < std::thread > _threadpool;
+			std::vector < deque > _queuepool;
+
 		};
 
-		void worker(workerinfo* info);
-
-		unsigned int _numthreads;
-
-		workerinfo _maininfo;
-		std::vector<std::pair<workerinfo, std::thread>> _threadpool;
-
-	};
-
-} //namespace concurrent
+	} //namespace concurrent
+}
 
 #endif

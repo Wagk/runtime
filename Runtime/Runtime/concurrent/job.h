@@ -1,21 +1,23 @@
 #ifndef CONCURRENT_JOB_H
 #define CONCURRENT_JOB_H
 
-namespace concurrent
-{
-	
-	class job
+namespace sandcastle {
+	namespace concurrent
 	{
-	public:
 
-		void exec();
+		class job
+		{
+		public:
 
-	protected:
+			void run();
 
-		virtual void desc() = 0;
-		
-	};
+		protected:
 
-} //namespace concurrent
+			virtual void func() = 0;
+
+		};
+
+	}
+} 
 
 #endif
