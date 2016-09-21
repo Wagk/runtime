@@ -19,15 +19,26 @@ namespace sandcastle
 		{
 			while (_data._stop->load() == false)
 			{
-				if (_data._work->empty())
+				job* task = nullptr;
+
+				if (task = _data._work->pop())
 				{
-					//perform work stealing
+					task->run();
 				}
 				else
 				{
-					job* task = _data._work->pop();
+					for (deque* elem : _data._steal)
+					{
+						if (task = elem->steal())
+							break;
+					}
 
-					task->run();
+					if (task)
+						task->run();
+					else
+					{
+						//sleep
+					}
 				}
 			}
 		}
